@@ -1,0 +1,7 @@
+Table bike_data has 4780363 rows.
+Table central_park_weather has 2984 rows.
+Table fhvhv_tripdata has 32182272 rows.
+Table fhv_bases has 1097 rows.
+Table fhv_tripdata has 3008649 rows.
+Table green_tripdata has 238718 rows.
+Table yellow_tripdata has 5454972 rows.
