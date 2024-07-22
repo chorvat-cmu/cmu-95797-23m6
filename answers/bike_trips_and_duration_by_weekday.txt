@@ -1,0 +1,19 @@
+
+select
+   weekday(started_at_ts) as weekday,
+   count(*) as total_trips,
+   sum(duration_sec) as total_trip_trip_duration_secs
+from "nyc_transit"."main"."mart__fact_all_bike_trips"
+group by all
+┌─────────┬─────────────┬───────────────────────────────┐
+│ weekday │ total_trips │ total_trip_trip_duration_secs │
+│  int64  │    int64    │            int128             │
+├─────────┼─────────────┼───────────────────────────────┤
+│       0 │      333177 │                     414314415 │
+│       1 │      348662 │                     360036016 │
+│       2 │      381497 │                     382232761 │
+│       3 │      393880 │                     380162189 │
+│       4 │      382288 │                     386421871 │
+│       5 │      390573 │                     407777057 │
+│       6 │      385430 │                     467769604 │
+└─────────┴─────────────┴───────────────────────────────┘
