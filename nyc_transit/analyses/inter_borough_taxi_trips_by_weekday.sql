@@ -1,25 +1,27 @@
 .echo on
+-- JOIN strategy, excluding NULL locations
 
--- weekday count of total trips
-with total_trips as (
-SELECT weekday(t.pickup_datetime) as weekday, count(*) as count_total_trips
-FROM {{ ref('mart__fact_all_taxi_trips') }} t
-GROUP BY weekday
+with all_trips as
+(select 
+    weekday(pickup_datetime) as weekday, 
+    count(*) trips
+    from {{ ref('mart__fact_all_taxi_trips') }} t
+    where PUlocationID is not null and DOlocationID is not null
+    group by all),
 
-)
--- weekday count of trips starting and ending in diff boroughs, joining taxis zones to get pickup and dropoff borough
-, different_boroughs as (
+inter_borough as
+(select 
+    weekday(pickup_datetime) as weekday, 
+    count(*) as trips
+from {{ ref('mart__fact_all_taxi_trips') }} t
+join {{ ref('mart__dim_locations') }} pl on t.PUlocationID = pl.LocationID
+join {{ ref('mart__dim_locations') }} dl on t.DOlocationID = dl.LocationID
+where pl.borough != dl.borough
+group by all)
 
-SELECT weekday(tpu.pickup_datetime) as weekday, COUNT(*) as total_trips_diff_borough 
-FROM {{ ref('mart__fact_all_taxi_trips') }} tpu
-JOIN {{ ref('taxi+_zone_lookup') }} tz_tpu ON tpu.PUlocationID = tz_tpu.LocationID
-JOIN {{ ref('taxi+_zone_lookup') }} tz_tdo ON tpu.DOlocationID = tz_tdo.LocationID
-WHERE tz_tpu.Borough != tz_tdo.Borough
-GROUP BY weekday
-
-)
-
--- calc percentage
-SELECT tt.weekday as weekday, tt.count_total_trips as count_total_trips, db.total_trips_diff_borough as total_trips_diff_borough, (db.total_trips_diff_borough / tt.count_total_trips) * 100 as percent_diff_borough
-FROM total_trips tt
-JOIN different_boroughs db ON tt.weekday = db.weekday
+select all_trips.weekday,
+       all_trips.trips as all_trips,
+       inter_borough.trips as inter_borough_trips,
+       inter_borough.trips / all_trips.trips as percent_inter_borough
+from all_trips
+join inter_borough on (all_trips.weekday = inter_borough.weekday);
