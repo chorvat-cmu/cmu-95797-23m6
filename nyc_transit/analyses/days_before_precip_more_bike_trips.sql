@@ -1,0 +1,57 @@
+.echo ON
+
+-- Identify dates with precipitation/snow
+WITH Days_Prcp AS (
+    SELECT
+	date
+    FROM {{ ref('stg__central_park_weather') }}
+    WHERE prcp > 0 OR snow > 0
+),
+
+-- Count the bike trips per day
+Bike_Trips_per_Day AS (
+    SELECT
+        DATE_TRUNC('day', started_at_ts) AS Bike_Date,
+        COUNT(*) AS Num_Bike_Trips
+    FROM {{ ref('mart__fact_all_bike_trips') }}
+    GROUP BY DATE_TRUNC('day', started_at_ts)
+),
+
+-- Identify dates preceding precipitation/snow
+-- First get dates and precipitation/snow for the following day
+Days_w_Precip_Following AS (
+    SELECT
+	date,
+        LEAD(prcp) OVER (ORDER BY date) AS Lead_Prcp,
+        LEAD(snow) OVER (ORDER BY date) AS Lead_Snow,
+    FROM {{ ref('stg__central_park_weather') }}
+),
+
+-- Identify dates that immediately precede precipitation/snow
+Days_Precede_Precip AS (
+    SELECT
+	date
+    FROM Days_w_Precip_Following
+    WHERE COALESCE(Lead_Prcp, 0) > 0 OR COALESCE(Lead_Snow, 0) > 0
+),
+
+-- Average bike trips on days preceding preciptitation/snow
+Avg_Trips_Precede_Precip AS (
+    SELECT
+	AVG(bt.Num_Bike_Trips) AS Avg_Trips_On_Days_Preced_Precip
+    FROM Days_Precede_Precip pr
+    JOIN Bike_Trips_per_Day bt ON pr.date = bt.Bike_Date
+),
+
+-- Average bike trips on days with precipitation/snow
+Avg_Trips_On_Days_Precip AS (
+    SELECT
+	AVG(bt.Num_Bike_Trips) AS Avg_Trips_On_Days_Precip
+    FROM Days_Prcp pcp
+    JOIN Bike_Trips_per_Day bt ON pcp.date = bt.Bike_Date
+)
+
+SELECT
+	Avg_Trips_On_Days_Preced_Precip,
+	Avg_Trips_On_Days_Precip
+FROM Avg_Trips_Precede_Precip, Avg_Trips_On_Days_Precip
