@@ -1,0 +1,12 @@
+
+SELECT
+	COUNT(tx.*) AS Total_Num_Trips_No_Pickup
+FROM "nyc_transit"."main"."mart__fact_all_taxi_trips" tx
+LEFT JOIN "nyc_transit"."main"."mart__dim_locations" lc ON tx.PUlocationID = lc.LocationID
+WHERE lc.LocationID IS NULL
+┌───────────────────────────┐
+│ Total_Num_Trips_No_Pickup │
+│           int64           │
+├───────────────────────────┤
+│                   1588827 │
+└───────────────────────────┘

@@ -1,0 +1,59 @@
+
+SELECT
+	lc.Zone,
+	COUNT(*) AS Trips
+FROM "nyc_transit"."main"."mart__fact_all_taxi_trips" tx
+JOIN "nyc_transit"."main"."mart__dim_locations" lc ON tx.PUlocationID = lc.LocationID
+GROUP BY ALL
+HAVING Trips <100000
+ORDER BY 2
+┌───────────────────────────────────────────────┬───────┐
+│                     Zone                      │ Trips │
+│                    varchar                    │ int64 │
+├───────────────────────────────────────────────┼───────┤
+│ Governor's Island/Ellis Island/Liberty Island │    15 │
+│ Rikers Island                                 │    15 │
+│ Great Kills Park                              │    63 │
+│ Jamaica Bay                                   │    78 │
+│ Freshkills Park                               │   786 │
+│ Astoria Park                                  │  1396 │
+│ Green-Wood Cemetery                           │  1550 │
+│ Broad Channel                                 │  1592 │
+│ Newark Airport                                │  1972 │
+│ Willets Point                                 │  2213 │
+│ Breezy Point/Fort Tilden/Riis Beach           │  3282 │
+│ Highbridge Park                               │  3563 │
+│ Marine Park/Floyd Bennett Field               │  3598 │
+│ Randalls Island                               │  4668 │
+│ Battery Park                                  │  4882 │
+│ Forest Park/Highland Park                     │  5044 │
+│ Crotona Park                                  │  5848 │
+│ Rossville/Woodrow                             │  7700 │
+│ City Island                                   │  7759 │
+│ Pelham Bay Park                               │  7961 │
+│        ·                                      │    ·  │
+│        ·                                      │    ·  │
+│        ·                                      │    ·  │
+│ Financial District South                      │ 78600 │
+│ Saint George/New Brighton                     │ 79076 │
+│ Sunset Park East                              │ 79236 │
+│ Allerton/Pelham Gardens                       │ 79265 │
+│ Madison                                       │ 79677 │
+│ East Elmhurst                                 │ 80637 │
+│ Glendale                                      │ 82127 │
+│ North Corona                                  │ 85988 │
+│ Maspeth                                       │ 86141 │
+│ Rego Park                                     │ 86465 │
+│ Fordham South                                 │ 88003 │
+│ Long Island City/Queens Plaza                 │ 88236 │
+│ Bensonhurst East                              │ 88734 │
+│ Longwood                                      │ 89396 │
+│ Queens Village                                │ 90845 │
+│ Coney Island                                  │ 91813 │
+│ Westchester Village/Unionport                 │ 92018 │
+│ Manhattanville                                │ 92770 │
+│ Parkchester                                   │ 95768 │
+│ Crotona Park East                             │ 97095 │
+├───────────────────────────────────────────────┴───────┤
+│ 120 rows (40 shown)                         2 columns │
+└───────────────────────────────────────────────────────┘
